@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  application:
+    build: .
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      DATABASE_URL: "mysql://si0_37957844:Z4y3AksN7h4Gf@sql210.infinityfree.com/if0_37957844_sante"
+
+volumes:
+  db_data:
