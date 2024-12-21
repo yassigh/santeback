@@ -29,3 +29,6 @@ EXPOSE 8000
 
 # Commande par défaut
 CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+COPY build.sh /app/
+RUN chmod +x /app/build.sh
+RUN /app/build.sh
