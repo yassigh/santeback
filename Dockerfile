@@ -1,36 +1,33 @@
+# Dockerfile
 FROM php:8.2-apache
 
-# Installer les dépendances système
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libicu-dev \
-    libzip-dev \
-    libpq-dev
+    git unzip libicu-dev libzip-dev
 
-# Installer les extensions PHP
 RUN docker-php-ext-install \
     pdo_mysql \
+    mysqli \
     intl \
-    zip \
-    opcache
+    zip
 
-# Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Configurer Apache
 RUN a2enmod rewrite
-COPY apache.conf /etc/apache2/sites-available/000-default.conf
 
-# Définir le répertoire de travail
 WORKDIR /var/www/html
-
-# Copier les fichiers du projet
 COPY . .
-
-# Installer les dépendances
 RUN composer install --no-interaction
-
-# Définir les autorisations
 RUN chown -R www-data:www-data var/
 RUN chmod -R 777 var/
+
+COPY apache.conf /etc/apache2/sites-available/000-default.conf
+
+------
+7ot command hethom mba3ed :
+
+docker-compose down -v
+docker-compose build --no-cache
+docker-compose up -d
+
+docker-compose exec app php bin/console doctrine:migrations:migrate
+
+docker-compose exec app php bin/console cache:clear
