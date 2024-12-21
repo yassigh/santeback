@@ -1,32 +1,21 @@
-# Image de base avec PHP 8.1 et Composer
-FROM php:8.1-fpm
-
-# Installer les dépendances nécessaires
-RUN apt-get update && apt-get install -y \
-    unzip \
-    git \
-    libicu-dev \
-    libonig-dev \
-    libzip-dev \
-    && docker-php-ext-install intl mbstring zip pdo_mysql
+# Choisir une image de base avec PHP
+FROM php:8.2-fpm
 
 # Installer Composer
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Définir le répertoire de travail
-WORKDIR /app
+# Copier le code dans le conteneur
+COPY . /app/
 
-# Copier les fichiers du projet
-COPY . .
+# Créer les répertoires nécessaires pour Nginx
+RUN mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx
 
-# Installer les dépendances PHP
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+# Exécuter composer install
+RUN composer install --ignore-platform-reqs
 
-# Configurer les permissions
-RUN chmod -R 777 var/cache var/log
+# Autres étapes de configuration...
+# Changer les permissions pour le répertoire
+RUN chown -R www-data:www-data /app
 
-# Exposer le port
-EXPOSE 8000
-
-# Commande par défaut
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+# Exécuter composer install
+RUN composer install --ignore-platform-reqs
