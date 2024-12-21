@@ -23,14 +23,32 @@ class ActivityController extends AbstractController
     #[Route('/activities', name: 'activity_list', methods: ['GET'])]
     public function list(EntityManagerInterface $em): Response
     {
-        $activities = $em->getRepository(Activity::class)->findAll();
-        $activityNames = array_map(fn($activity) => [
-            'id' => $activity->getId(),
-            'nom' => $activity->getNom()
-        ], $activities);
-
-        return $this->json($activityNames);
+        try {
+            // Tentative de récupération des activités depuis la base de données
+            $activities = $em->getRepository(Activity::class)->findAll();
+    
+            // Traitement des données des activités
+            $activityNames = array_map(fn($activity) => [
+                'id' => $activity->getId(),
+                'nom' => $activity->getNom()
+            ], $activities);
+    
+            // Retour des données sous forme de JSON
+            return $this->json($activityNames);
+    
+        } catch (\Exception $e) {
+            // Capture de l'exception et retour d'une réponse d'erreur
+            $message = 'Une erreur s\'est produite lors de la récupération des activités.';
+    
+            // Log de l'erreur pour une meilleure traçabilité
+            $this->get('logger')->error('Error retrieving activities: ' . $e->getMessage());
+    
+            // Retour d'un message d'erreur
+            return $this->json(['error' => $message], 500);
+        }
     }
+    
+    
 
     #[Route('/activities/{userId}', name: 'activities_by_user', methods: ['GET'])]
     public function getActivitiesByUser(int $userId, EntityManagerInterface $em): Response
